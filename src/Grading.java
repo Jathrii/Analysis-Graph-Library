@@ -26,6 +26,7 @@ public class Grading {
 		g.insertVertex(new StringBuffer("3"), new StringBuffer("3"));
 		g.insertVertex(new StringBuffer("4"), new StringBuffer("4"));
 		g.insertVertex(new StringBuffer("5"), new StringBuffer("5"));
+		g.insertVertex(new StringBuffer("6"), new StringBuffer("6"));
 		g.insertEdge(new StringBuffer("1"), new StringBuffer("4"), new StringBuffer("5"), new StringBuffer("5"), 5);
 		g.insertEdge(new StringBuffer("1"), new StringBuffer("2"), new StringBuffer("2"), new StringBuffer("2"), 2);
 		g.insertEdge(new StringBuffer("2"), new StringBuffer("3"), new StringBuffer("14"), new StringBuffer("14"), 14);
@@ -34,8 +35,9 @@ public class Grading {
 		g.insertEdge(new StringBuffer("4"), new StringBuffer("5"), new StringBuffer("58"), new StringBuffer("58"), 58);
 		g.insertEdge(new StringBuffer("3"), new StringBuffer("5"), new StringBuffer("34"), new StringBuffer("34"), 34);
 
-		g.bfs(new StringBuffer("1"), gVisitor);
-
+		//g.bfs(new StringBuffer("1"), gVisitor);
+		//g.dfs(new StringBuffer("1"), gVisitor);
+		g.pathDFS(new StringBuffer("1"), new StringBuffer("3"));
 		if (gVisitor.getResult().equalsIgnoreCase("blah"))
 			nMark += 12;
 		

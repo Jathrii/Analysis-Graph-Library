@@ -1,3 +1,5 @@
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -213,9 +215,9 @@ public class Graph {
 		for (Edge edge : edgeList) {
 			if (edge._strUniqueID.toString().equals(strEdgeUniqueID.toString())) {
 				edgeID = edge._strUniqueID;
-				if (edge.get_vertex1ID().toString().equals(strEdgeUniqueID.toString()))
+				if (edge.get_vertex1ID().toString().equals(strVertexUniqueID.toString()))
 					vertexID = edge.get_vertex2ID();
-				else if (edge.get_vertex2ID().toString().equals(strEdgeUniqueID.toString()))
+				else if (edge.get_vertex2ID().toString().equals(strVertexUniqueID.toString()))
 					vertexID = edge.get_vertex1ID();
 				else
 					throw new GraphException("Vertex given is not associated with this edge");
@@ -253,7 +255,34 @@ public class Graph {
 	// performs depth first search starting from passed vertex
 	// visitor is called on each vertex and edge visited. [12 pts]
 	public void dfs(StringBuffer strStartVertexUniqueID, Visitor visitor) throws GraphException {
+		Hashtable<String, Boolean> visited = new Hashtable<String, Boolean>();
+		for (String key : vertices.keySet()) {
+			visited.put(key, false);
+		}
+		dfsHelper(strStartVertexUniqueID, visitor, visited);
+	}
 
+	public Vector<Edge> sortVectorOfEdges(Vector<Edge> vector) {
+		Collections.sort(vector, Comparator.comparing(Edge::getCost));
+		return vector;
+	}
+
+	public void dfsHelper(StringBuffer strStartVertexUniqueID, Visitor visitor, Hashtable<String, Boolean> visited)
+			throws GraphException {
+		if (visited.get(strStartVertexUniqueID.toString()))
+			return;
+		else {
+			visitor.visit(vertices.get(strStartVertexUniqueID.toString()));
+			visited.put(strStartVertexUniqueID.toString(), true);
+			// System.out.print(strStartVertexUniqueID+"->");
+			Vector adjEdgesVector = sortVectorOfEdges(incidentEdges(strStartVertexUniqueID));
+			for (Object edge : adjEdgesVector) {
+				Vertex oppositeVertex = opposite(strStartVertexUniqueID, ((Edge) edge).getUniqueID());
+				if (!visited.get(oppositeVertex.getUniqueID().toString())) {
+					dfsHelper(oppositeVertex.getUniqueID(), visitor, visited);
+				}
+			}
+		}
 	}
 
 	// performs breadth first search starting from passed vertex
@@ -261,17 +290,17 @@ public class Graph {
 	public void bfs(StringBuffer strStartVertexUniqueID, Visitor visitor) throws GraphException {
 		Hashtable<String, Boolean> visited = new Hashtable<String, Boolean>();
 		Queue<Vertex> queue = new LinkedList<Vertex>();
-		
-		for (String key: vertices.keySet()) {
+
+		for (String key : vertices.keySet()) {
 			visited.put(key, false);
 		}
 
 		Vertex startVertex = vertices.get(strStartVertexUniqueID.toString());
-		
+
 		visitor.visit(startVertex);
 		visited.put(strStartVertexUniqueID.toString(), true);
 		queue.add(startVertex);
-		
+
 		while (!queue.isEmpty()) {
 			Vertex parent = queue.poll();
 			for (Pair pair : adjacencyList.get(parent.getUniqueID().toString())) {
@@ -286,12 +315,44 @@ public class Graph {
 		}
 	}
 
+
+	public Vector<PathSegment> pathDFSHelper(StringBuffer strStartVertexUniqueID, StringBuffer strEndVertexUniqueID,
+			Vector<PathSegment> pathVector, Vector<PathSegment> pathVectorResult,Hashtable<String, Boolean> visited) throws GraphException {
+		visited.put(strStartVertexUniqueID.toString(), true);
+		if (strStartVertexUniqueID.toString().equals(strEndVertexUniqueID.toString())) {
+			for (PathSegment pathSegment : pathVector) {
+				pathVectorResult.add(pathSegment);
+			}
+		}
+		Vector<Edge> adjEdgesVector = sortVectorOfEdges(incidentEdges(strStartVertexUniqueID));
+		for (Edge edge : adjEdgesVector) {
+			Vertex oppositeVertex = opposite(strStartVertexUniqueID, edge.getUniqueID());
+			if (!visited.get(oppositeVertex.getUniqueID().toString())) {
+				pathVector.add(new PathSegment(vertices.get(strStartVertexUniqueID.toString()), edge));
+				pathDFSHelper(oppositeVertex.getUniqueID(), strEndVertexUniqueID, pathVector,pathVectorResult, visited);
+				pathVector.remove(pathVector.size()-1);
+			}
+		}
+		return pathVectorResult;
+	}
+
 	// returns a path between start vertex and end vertex
 	// if exists using dfs. [18 pts]
 	public Vector<PathSegment> pathDFS(StringBuffer strStartVertexUniqueID, StringBuffer strEndVertexUniqueID)
 			throws GraphException {
-		return null;
-
+		Hashtable<String, Boolean> visited = new Hashtable<String, Boolean>();
+		for (String key : vertices.keySet()) {
+			visited.put(key, false);
+		}
+		Vector<PathSegment> pathVectorTemp = new Vector<PathSegment>();
+		Vector<PathSegment> pathVectorResult = new Vector<PathSegment>();
+		pathVectorResult = pathDFSHelper(strStartVertexUniqueID, strEndVertexUniqueID, pathVectorTemp,pathVectorResult, visited);
+		/*//for testing purposes
+		 for (PathSegment pathSegment : pathVectorResult) {
+			System.out.println("Vertex : "+pathSegment.getVertex().getUniqueID()+", Edge Cost : "+pathSegment.getEdge().getCost());
+		}
+		 */
+		return pathVectorResult;
 	}
 
 	// finds the closest pair of vertices using divide and conquer
