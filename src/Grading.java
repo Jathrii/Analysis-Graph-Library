@@ -2,11 +2,13 @@ class GradingVisitor implements Visitor {
 	protected String _strResult = new String();
 
 	public void visit(Vertex v) {
-		_strResult += "v=" + v.getUniqueID() + " ";
+		//_strResult += "v=" + v.getUniqueID() + " ";
+		_strResult += v.getUniqueID();
 	}
 
 	public void visit(Edge e) {
-		_strResult += "e=" + e.getUniqueID() + " ";
+		//_strResult += "e=" + e.getUniqueID() + " ";
+		//_strResult += e.getUniqueID();
 
 	}
 
@@ -21,27 +23,57 @@ public class Grading {
 		Graph g = new Graph();
 		GradingVisitor gVisitor = new GradingVisitor();
 
-		g.insertVertex(new StringBuffer("1"), new StringBuffer("1"));
-		g.insertVertex(new StringBuffer("2"), new StringBuffer("2"));
-		g.insertVertex(new StringBuffer("3"), new StringBuffer("3"));
-		g.insertVertex(new StringBuffer("4"), new StringBuffer("4"));
-		g.insertVertex(new StringBuffer("5"), new StringBuffer("5"));
-		g.insertVertex(new StringBuffer("6"), new StringBuffer("6"));
-		g.insertEdge(new StringBuffer("1"), new StringBuffer("4"), new StringBuffer("5"), new StringBuffer("5"), 5);
-		g.insertEdge(new StringBuffer("1"), new StringBuffer("2"), new StringBuffer("2"), new StringBuffer("2"), 2);
-		g.insertEdge(new StringBuffer("2"), new StringBuffer("3"), new StringBuffer("14"), new StringBuffer("14"), 14);
-		g.insertEdge(new StringBuffer("2"), new StringBuffer("4"), new StringBuffer("15"), new StringBuffer("5"), 5);
-		g.insertEdge(new StringBuffer("2"), new StringBuffer("5"), new StringBuffer("4"), new StringBuffer("4"), 4);
-		g.insertEdge(new StringBuffer("4"), new StringBuffer("5"), new StringBuffer("58"), new StringBuffer("58"), 58);
-		g.insertEdge(new StringBuffer("3"), new StringBuffer("5"), new StringBuffer("34"), new StringBuffer("34"), 34);
+		// Graph 1
+//		g.insertVertex("1", "1", 0, 0);
+//		g.insertVertex("2", "2", 0, 0);
+//		g.insertVertex("3", "3", 0, 0);
+//		g.insertVertex("4", "4", 0, 0);
+//		g.insertVertex("5", "5", 0, 0);
+//		g.insertVertex("6", "6", 0, 0);
+//		g.insertEdge("1", "4", "88", "88", 5);
+//		g.insertEdge("1", "2", "2", "2", 2);
+//		g.insertEdge("2", "3", "14", "14", 14);
+//		g.insertEdge("2", "4", "99", "99", 5);
+//		g.insertEdge("2", "5", "4", "4", 4);
+//		g.insertEdge("4", "5", "58", "58", 58);
+//		g.insertEdge("3", "5", "34", "34", 34);
+		
+		// Graph 6
+		g.insertVertex("D", "D", 0, 0);
+		g.insertVertex("B", "B", 0, 0);
+		g.insertVertex("A", "A", 0, 0);
+		g.insertVertex("C", "C", 0, 0);
+		g.insertVertex("E", "E", 0, 0);
+		g.insertVertex("F", "F", 0, 0);
+		g.insertVertex("G", "G", 0, 0);
+		g.insertEdge("D", "B", "11", "88", 5);
+		g.insertEdge("B", "A", "40", "2", 2);
+		g.insertEdge("B", "C", "30", "14", 14);
+		g.insertEdge("A", "C", "20", "99", 5);
+		g.insertEdge("C", "E", "15", "4", 4);
+		g.insertEdge("E", "F", "44", "58", 58);
+		g.insertEdge("E", "G", "90", "34", 34);
 
-		//g.bfs(new StringBuffer("1"), gVisitor);
-		//g.dfs(new StringBuffer("1"), gVisitor);
-		g.pathDFS(new StringBuffer("1"), new StringBuffer("3"));
+		System.out.println("BFS:");
+		g.bfs("C", gVisitor);
+		System.out.println(gVisitor.getResult());
+		
+		gVisitor = new GradingVisitor();
+		
+		System.out.println("DFS:");
+		g.dfs("C", gVisitor);
+		System.out.println(gVisitor.getResult());
+		
+		gVisitor = new GradingVisitor();
+		
+		System.out.println("pathDFS:");
+		g.pathDFS("D", "F");
+		System.out.println(gVisitor.getResult());
+		
+		/*
 		if (gVisitor.getResult().equalsIgnoreCase("blah"))
 			nMark += 12;
-		
-		System.out.println(gVisitor.getResult());
+		*/
 
 		return nMark;
 	}
