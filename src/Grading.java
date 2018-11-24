@@ -39,13 +39,13 @@ public class Grading {
 //		g.insertEdge("3", "5", "34", "34", 34);
 		
 		// Graph 6
-		g.insertVertex("D", "D", 0, 0);
-		g.insertVertex("B", "B", 0, 0);
-		g.insertVertex("A", "A", 0, 0);
-		g.insertVertex("C", "C", 0, 0);
-		g.insertVertex("E", "E", 0, 0);
-		g.insertVertex("F", "F", 0, 0);
-		g.insertVertex("G", "G", 0, 0);
+		g.insertVertex("D", "D", 2, 5);
+		g.insertVertex("B", "B", 4, 7);
+		g.insertVertex("A", "A", 19, 5);
+		g.insertVertex("C", "C", 9, 3);
+		g.insertVertex("E", "E", 1, 17);
+		g.insertVertex("F", "F", 3, 9);
+		g.insertVertex("G", "G", 5, 12);
 		g.insertEdge("D", "B", "11", "88", 5);
 		g.insertEdge("B", "A", "40", "2", 2);
 		g.insertEdge("B", "C", "30", "14", 14);
@@ -69,6 +69,10 @@ public class Grading {
 		System.out.println("pathDFS:");
 		g.pathDFS("D", "F");
 		System.out.println(gVisitor.getResult());
+		
+		Vertex [] ClosestPair = g.closestPair();
+		
+		System.out.println("ClosestPair = { " + ClosestPair[0].getUniqueID() + " , " + ClosestPair[1].getUniqueID() + " }");
 		
 		/*
 		if (gVisitor.getResult().equalsIgnoreCase("blah"))

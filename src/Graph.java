@@ -2,10 +2,14 @@
 import java.util.Collections;
 import java.util.Comparator;
 */
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
+import java.lang.Math;
 
 class Pair {
 	String vertexID;
@@ -376,11 +380,120 @@ public class Graph {
 
 	// finds the closest pair of vertices using divide and conquer
 	// algorithm. Use X and Y attributes in each vertex. [30 pts]
-	public Vertex[] closestPair() throws GraphException {
-		return null;
+	public Vertex[] closestPair() throws GraphException 
+	{
+		
+		Vector<Vertex> tmp = this.vertices();
+		
+		Collections.sort(tmp, OrderByX);
+		
+		Vertex [] res = closestPairHelper(this.vertices());
+		
+		return res;
 
 	}
-
+	
+	double dist(Vertex a, Vertex b)
+	{
+		return Math.sqrt(Math.pow(a.getX() - b.getX(),2) + Math.pow((a.getY() - b.getY()), 2));
+	}
+	
+	Vertex[] closestPairHelper(Vector<Vertex> P)
+	{
+		Vertex[] res = new Vertex[2];
+		if(P.size() <= 3)
+		{
+			res[0] = P.get(0);
+			res[1] = P.get(1);
+			for( int i = 0; i <P.size(); i++)
+			{
+				for(int j = i + 1; j< P.size(); j++)
+				{
+					if(dist(P.get(i), P.get(j))< dist(res[0], res[1]))
+					{
+						res[0] = P.get(i);
+						res[1] = P.get(j);
+					}
+				}
+			}
+			return res;
+		}
+		Vector<Vertex> Left = new Vector<Vertex>();
+		Vector<Vertex> Right = new Vector<Vertex>();
+		for(int i = 0; i < P.size() / 2; i++)
+		{
+			Left.add(P.get(i));
+		}
+		
+		for(int i = P.size() / 2 + 1; i < P.size(); i++)
+		{
+			Right.add(P.get(i));
+		}
+		
+		Vertex[] minLeft = closestPairHelper(Left);
+		Vertex[] minRight = closestPairHelper(Right);
+		
+		if(dist(minLeft[0],minLeft[1]) <= dist(minRight[0], minRight[1]))
+		{
+			res = minLeft;
+		}
+		else
+		{
+			res = minRight;
+		}
+		
+		Vector<Vertex> tmp = new Vector<Vertex>();
+		Vertex [] tmpres = new Vertex[2];
+		for (int i = 0; i < P.size(); i++)
+		{
+			if(Math.abs(P.get(P.size()/2).getX() - P.get(i).getX()) < dist(res[0],res[1]));
+				tmp.add(P.get(i));
+		}
+		
+		tmpres = closestPairHelper1(tmp, res);
+		if(dist(tmpres[0], tmpres[1]) < dist(res[0],res[1]))
+			res = tmpres;
+		
+		return res;
+	}
+	
+	Comparator<Vertex> OrderByY =  new Comparator<Vertex>() {
+        public int compare(Vertex s1, Vertex s2) {
+            return s1.getY() - s2.getY();
+        }
+    };
+    
+    Comparator<Vertex> OrderByX =  new Comparator<Vertex>() {
+        public int compare(Vertex s1, Vertex s2) {
+            return s1.getX() - s2.getX();
+        }
+    };
+	
+	Vertex[] closestPairHelper1(Vector<Vertex> P, Vertex[] min)
+	{
+		P.sort(OrderByY);
+		
+		Vertex [] min1 = new Vertex[2];
+		min1[0] = min[0];
+		min1[1] = min[1];
+		// Pick all points one by one and try the next points till the difference 
+	    // between y coordinates is smaller than d. 
+	    // This loop is proven to run at most 6 times 
+		
+		for(int i = 0; i < P.size(); i++)
+		{
+			for(int j = i + 1; j < P.size() && (Math.abs(P.get(i).getY() - P.get(j).getY())) < dist(min1[0], min1[1]); j++)
+			{
+				if(dist(P.get(i), P.get(j)) < dist(min1[0], min1[1]))
+				{
+					min1[0] = P.get(i);
+					min1[1] = P.get(j);
+				}
+			}
+		}
+		
+		return min1;	
+	}
 	// finds a minimum spanning tree using kruskal greedy algorithm
 	// and returns the path to achieve that. Use Edge._nEdgeCost
 	// attribute in finding the min span tree [30 pts]
