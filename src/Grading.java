@@ -1,14 +1,17 @@
+import java.util.Vector;
+import java.lang.Math;
+
 class GradingVisitor implements Visitor {
 	protected String _strResult = new String();
 
 	public void visit(Vertex v) {
-		//_strResult += "v=" + v.getUniqueID() + " ";
+		// _strResult += "v=" + v.getUniqueID() + " ";
 		_strResult += v.getUniqueID();
 	}
 
 	public void visit(Edge e) {
-		//_strResult += "e=" + e.getUniqueID() + " ";
-		//_strResult += e.getUniqueID();
+		// _strResult += "e=" + e.getUniqueID() + " ";
+		// _strResult += e.getUniqueID();
 
 	}
 
@@ -37,7 +40,7 @@ public class Grading {
 //		g.insertEdge("2", "5", "4", "4", 4);
 //		g.insertEdge("4", "5", "58", "58", 58);
 //		g.insertEdge("3", "5", "34", "34", 34);
-		
+
 		// Graph 6
 		g.insertVertex("D", "D", 2, 5);
 		g.insertVertex("B", "B", 4, 7);
@@ -57,29 +60,118 @@ public class Grading {
 		System.out.println("BFS:");
 		g.bfs("C", gVisitor);
 		System.out.println(gVisitor.getResult());
-		
+
 		gVisitor = new GradingVisitor();
-		
+
 		System.out.println("DFS:");
 		g.dfs("C", gVisitor);
 		System.out.println(gVisitor.getResult());
-		
+
 		gVisitor = new GradingVisitor();
-		
+
 		System.out.println("pathDFS:");
 		g.pathDFS("D", "F");
 		System.out.println(gVisitor.getResult());
+
+		gVisitor = new GradingVisitor();
+
+		Vertex[] ClosestPair = g.closestPair();
+
+		System.out.println(
+				"ClosestPair = { " + ClosestPair[0].getUniqueID() + " , " + ClosestPair[1].getUniqueID() + " }");
 		
-		Vertex [] ClosestPair = g.closestPair();
+		printDistances(g.vertices());
 		
-		System.out.println("ClosestPair = { " + ClosestPair[0].getUniqueID() + " , " + ClosestPair[1].getUniqueID() + " }");
+		System.out.println();
 		
+		System.out.println(g.getLibraryName());
+		System.out.println(g.getLibraryVersion());
+		System.out.println();
+		
+		g.removeVertex("D");
+		g.removeEdge("11");
+		
+		System.out.println("vertices");
+		
+		for (Vertex vertex: g.vertices()) {
+			System.out.println(vertex);
+		}
+		
+		System.out.println();
+		
+		System.out.println("edges");
+		
+		for (Edge edge: g.edges()) {
+			System.out.println(edge);
+		}
+		
+		System.out.println();
+		
+		System.out.println("incident");
+		
+		for (Vertex vertex: g.vertices()) {
+			System.out.println("Incident Edges for Vertex " + vertex.toString() + ":");
+			for (Edge edge: g.incidentEdges(vertex.getUniqueID().toString())) {
+				System.out.println(edge);
+				System.out.println();
+			}
+		}
+		
+		System.out.println();
+		
+		System.out.println("end");
+		
+		for (Edge edge: g.edges()) {
+			System.out.println("End Vertices of Edge " + edge.toString() + ":");
+			System.out.println(g.endVertices(edge.getUniqueID().toString())[0]);
+			System.out.println(g.endVertices(edge.getUniqueID().toString())[1]);
+			System.out.println();
+		}
+		
+		System.out.println();
+		
+		System.out.println("opposite");
+		
+		for (Edge edge: g.edges()) {
+			System.out.println("Opposite Vertices of Edge " + edge.toString() + ":");
+			System.out.println(g.opposite(edge.get_vertex1ID().toString(), edge.getUniqueID().toString()));
+			System.out.println(g.opposite(edge.get_vertex2ID().toString(), edge.getUniqueID().toString()));
+			System.out.println();
+		}
+
 		/*
-		if (gVisitor.getResult().equalsIgnoreCase("blah"))
-			nMark += 12;
-		*/
+		 * if (gVisitor.getResult().equalsIgnoreCase("blah")) nMark += 12;
+		 */
 
 		return nMark;
+	}
+
+	public static void printDistances(Vector<Vertex> vertices) {
+		String closest = "";
+		double min = Double.MAX_VALUE;
+		for (Vertex vertex1 : vertices) {
+			for (Vertex vertex2 : vertices) {
+				if (vertex1.getUniqueID().toString().equals(vertex2.getUniqueID().toString()))
+					continue;
+				double distance = dist(vertex1, vertex2);
+				String pair = vertex1.getUniqueID().toString() + " - " + vertex2.getUniqueID().toString();
+				if (distance < min) {
+					min = distance;
+					closest = pair;
+				}
+				System.out.println(pair);
+				System.out.println(distance);
+				
+			}
+		}
+		
+		System.out.println("Closest Pair:");
+		System.out.println(closest);
+		System.out.println(min);
+	}
+
+	public static double dist(Vertex a, Vertex b) {
+		return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow((a.getY() - b.getY()), 2));
 	}
 
 	public static void main(String[] args) throws GraphException {

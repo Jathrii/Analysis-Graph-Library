@@ -2,7 +2,6 @@
 import java.util.Collections;
 import java.util.Comparator;
 */
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
@@ -10,16 +9,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
 import java.lang.Math;
-
-class Pair {
-	String vertexID;
-	int cost;
-
-	public Pair(String vertexID, int cost) {
-		this.vertexID = vertexID;
-		this.cost = cost;
-	}
-}
 
 public class Graph {
 	// LinkedList<Vertex> vertices = new LinkedList<Vertex>();
@@ -108,22 +97,32 @@ public class Graph {
 				// remove vertex from the list of vertices
 				vertices.remove(strVertexUniqueID);
 
+				LinkedList<Edge> removedEdges = new LinkedList<Edge>();
+
 				// remove all edges connected to the vertex
 				for (Edge edge : edgeList) {
 					if (edge.get_vertex1ID().toString().equals(strVertexUniqueID)
 							|| edge.get_vertex2ID().toString().equals(strVertexUniqueID))
-						removeEdge(edge.getUniqueID().toString());
+						removedEdges.add(edge);
 				}
+
+				for (Edge edge : removedEdges)
+					removeEdge(edge.getUniqueID().toString());
 
 				// remove vertex's adjacency list entry
 				adjacencyList.remove(strVertexUniqueID);
 
 				// remove vertex from other vertices' adjacency lists
 				for (LinkedList<Pair> vertexAdjList : adjacencyList.values()) {
+					LinkedList<Pair> removedPairs = new LinkedList<Pair>();
+
 					for (Pair pair : vertexAdjList) {
 						if (pair.vertexID.equals(strVertexUniqueID))
-							vertexAdjList.remove(pair);
+							removedPairs.add(pair);
 					}
+
+					for (Pair pair : removedPairs)
+						vertexAdjList.remove(pair);
 				}
 
 				return;
@@ -145,17 +144,27 @@ public class Graph {
 				LinkedList<Pair> vertex1AdjList = adjacencyList.get(vertex1ID);
 				LinkedList<Pair> vertex2AdjList = adjacencyList.get(vertex2ID);
 
+				LinkedList<Pair> removed = new LinkedList<Pair>();
+
 				// remove vertex2 from vertex1's adjacency list
 				for (Pair pair : vertex1AdjList) {
 					if (pair.vertexID.equals(vertex2ID))
-						vertex1AdjList.remove(pair);
+						removed.add(pair);
 				}
+
+				for (Pair pair : removed)
+					vertex1AdjList.remove(pair);
+
+				removed = new LinkedList<Pair>();
 
 				// remove vertex1 from vertex2's adjacency list
 				for (Pair pair : vertex2AdjList) {
 					if (pair.vertexID.equals(vertex1ID))
-						vertex2AdjList.remove(pair);
+						removed.add(pair);
 				}
+
+				for (Pair pair : removed)
+					vertex2AdjList.remove(pair);
 			}
 
 			return;
@@ -245,22 +254,19 @@ public class Graph {
 	}
 
 	/*
-	// returns the edge connecting 2 vertices
-	public Edge connectingEdge(Vertex startVertex, Vertex endVertex) {
-		String startVertexID = startVertex.getUniqueID().toString();
-		String endVertexID = endVertex.getUniqueID().toString();
-
-		for (Edge edge : edgeList) {
-			if ((edge.get_vertex1ID().toString().equals(startVertexID)
-					&& edge.get_vertex2ID().toString().equals(endVertexID))
-					|| (edge.get_vertex1ID().toString().equals(endVertexID)
-							&& edge.get_vertex2ID().toString().equals(startVertexID)))
-				return edge;
-		}
-
-		return null;
-	}
-	*/
+	 * // returns the edge connecting 2 vertices public Edge connectingEdge(Vertex
+	 * startVertex, Vertex endVertex) { String startVertexID =
+	 * startVertex.getUniqueID().toString(); String endVertexID =
+	 * endVertex.getUniqueID().toString();
+	 * 
+	 * for (Edge edge : edgeList) { if
+	 * ((edge.get_vertex1ID().toString().equals(startVertexID) &&
+	 * edge.get_vertex2ID().toString().equals(endVertexID)) ||
+	 * (edge.get_vertex1ID().toString().equals(endVertexID) &&
+	 * edge.get_vertex2ID().toString().equals(startVertexID))) return edge; }
+	 * 
+	 * return null; }
+	 */
 
 	// performs depth first search starting from passed vertex
 	// visitor is called on each vertex and edge visited. [12 pts]
@@ -273,11 +279,10 @@ public class Graph {
 	}
 
 	/*
-	public Vector<Edge> sortVectorOfEdges(Vector<Edge> vector) {
-		Collections.sort(vector, Comparator.comparing(Edge::getCost));
-		return vector;
-	}
-	*/
+	 * public Vector<Edge> sortVectorOfEdges(Vector<Edge> vector) {
+	 * Collections.sort(vector, Comparator.comparing(Edge::getCost)); return vector;
+	 * }
+	 */
 
 	public void dfsHelper(String strStartVertexUniqueID, Visitor visitor, Hashtable<String, Boolean> visited)
 			throws GraphException {
@@ -315,16 +320,15 @@ public class Graph {
 
 		while (!queue.isEmpty()) {
 			Vertex parent = queue.poll();
-			
+
 			for (Edge edge : incidentEdges(parent.getUniqueID().toString())) {
 				Vertex child = null;
-				
+
 				if (edge.get_vertex1ID().toString().equals(parent.getUniqueID().toString()))
 					child = vertices.get(edge.get_vertex2ID().toString());
 				else if (edge.get_vertex2ID().toString().equals(parent.getUniqueID().toString()))
 					child = vertices.get(edge.get_vertex1ID().toString());
-				
-				
+
 				if (!visited.get(child.getUniqueID().toString())) {
 					visitor.visit(edge);
 					visitor.visit(child);
@@ -332,7 +336,7 @@ public class Graph {
 					queue.add(child);
 				}
 			}
-			
+
 		}
 	}
 
@@ -380,37 +384,30 @@ public class Graph {
 
 	// finds the closest pair of vertices using divide and conquer
 	// algorithm. Use X and Y attributes in each vertex. [30 pts]
-	public Vertex[] closestPair() throws GraphException 
-	{
-		
+	public Vertex[] closestPair() throws GraphException {
+
 		Vector<Vertex> tmp = this.vertices();
-		
+
 		Collections.sort(tmp, OrderByX);
-		
-		Vertex [] res = closestPairHelper(this.vertices());
-		
+
+		Vertex[] res = closestPairHelper(this.vertices());
+
 		return res;
 
 	}
-	
-	double dist(Vertex a, Vertex b)
-	{
-		return Math.sqrt(Math.pow(a.getX() - b.getX(),2) + Math.pow((a.getY() - b.getY()), 2));
+
+	double dist(Vertex a, Vertex b) {
+		return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow((a.getY() - b.getY()), 2));
 	}
-	
-	Vertex[] closestPairHelper(Vector<Vertex> P)
-	{
+
+	Vertex[] closestPairHelper(Vector<Vertex> P) {
 		Vertex[] res = new Vertex[2];
-		if(P.size() <= 3)
-		{
+		if (P.size() <= 3) {
 			res[0] = P.get(0);
 			res[1] = P.get(1);
-			for( int i = 0; i <P.size(); i++)
-			{
-				for(int j = i + 1; j< P.size(); j++)
-				{
-					if(dist(P.get(i), P.get(j))< dist(res[0], res[1]))
-					{
+			for (int i = 0; i < P.size(); i++) {
+				for (int j = i + 1; j < P.size(); j++) {
+					if (dist(P.get(i), P.get(j)) < dist(res[0], res[1])) {
 						res[0] = P.get(i);
 						res[1] = P.get(j);
 					}
@@ -420,80 +417,73 @@ public class Graph {
 		}
 		Vector<Vertex> Left = new Vector<Vertex>();
 		Vector<Vertex> Right = new Vector<Vertex>();
-		for(int i = 0; i < P.size() / 2; i++)
-		{
+		for (int i = 0; i < P.size() / 2; i++) {
 			Left.add(P.get(i));
 		}
-		
-		for(int i = P.size() / 2 + 1; i < P.size(); i++)
-		{
+
+		for (int i = P.size() / 2 + 1; i < P.size(); i++) {
 			Right.add(P.get(i));
 		}
-		
+
 		Vertex[] minLeft = closestPairHelper(Left);
 		Vertex[] minRight = closestPairHelper(Right);
-		
-		if(dist(minLeft[0],minLeft[1]) <= dist(minRight[0], minRight[1]))
-		{
+
+		if (dist(minLeft[0], minLeft[1]) <= dist(minRight[0], minRight[1])) {
 			res = minLeft;
-		}
-		else
-		{
+		} else {
 			res = minRight;
 		}
-		
+
 		Vector<Vertex> tmp = new Vector<Vertex>();
-		Vertex [] tmpres = new Vertex[2];
-		for (int i = 0; i < P.size(); i++)
-		{
-			if(Math.abs(P.get(P.size()/2).getX() - P.get(i).getX()) < dist(res[0],res[1]));
-				tmp.add(P.get(i));
+		Vertex[] tmpres = new Vertex[2];
+		for (int i = 0; i < P.size(); i++) {
+			if (Math.abs(P.get(P.size() / 2).getX() - P.get(i).getX()) < dist(res[0], res[1]))
+				;
+			tmp.add(P.get(i));
 		}
-		
+
 		tmpres = closestPairHelper1(tmp, res);
-		if(dist(tmpres[0], tmpres[1]) < dist(res[0],res[1]))
+		if (dist(tmpres[0], tmpres[1]) < dist(res[0], res[1]))
 			res = tmpres;
-		
+
 		return res;
 	}
-	
-	Comparator<Vertex> OrderByY =  new Comparator<Vertex>() {
-        public int compare(Vertex s1, Vertex s2) {
-            return s1.getY() - s2.getY();
-        }
-    };
-    
-    Comparator<Vertex> OrderByX =  new Comparator<Vertex>() {
-        public int compare(Vertex s1, Vertex s2) {
-            return s1.getX() - s2.getX();
-        }
-    };
-	
-	Vertex[] closestPairHelper1(Vector<Vertex> P, Vertex[] min)
-	{
+
+	Comparator<Vertex> OrderByY = new Comparator<Vertex>() {
+		public int compare(Vertex s1, Vertex s2) {
+			return s1.getY() - s2.getY();
+		}
+	};
+
+	Comparator<Vertex> OrderByX = new Comparator<Vertex>() {
+		public int compare(Vertex s1, Vertex s2) {
+			return s1.getX() - s2.getX();
+		}
+	};
+
+	Vertex[] closestPairHelper1(Vector<Vertex> P, Vertex[] min) {
 		P.sort(OrderByY);
-		
-		Vertex [] min1 = new Vertex[2];
+
+		Vertex[] min1 = new Vertex[2];
 		min1[0] = min[0];
 		min1[1] = min[1];
-		// Pick all points one by one and try the next points till the difference 
-	    // between y coordinates is smaller than d. 
-	    // This loop is proven to run at most 6 times 
-		
-		for(int i = 0; i < P.size(); i++)
-		{
-			for(int j = i + 1; j < P.size() && (Math.abs(P.get(i).getY() - P.get(j).getY())) < dist(min1[0], min1[1]); j++)
-			{
-				if(dist(P.get(i), P.get(j)) < dist(min1[0], min1[1]))
-				{
+		// Pick all points one by one and try the next points till the difference
+		// between y coordinates is smaller than d.
+		// This loop is proven to run at most 6 times
+
+		for (int i = 0; i < P.size(); i++) {
+			for (int j = i + 1; j < P.size()
+					&& (Math.abs(P.get(i).getY() - P.get(j).getY())) < dist(min1[0], min1[1]); j++) {
+				if (dist(P.get(i), P.get(j)) < dist(min1[0], min1[1])) {
 					min1[0] = P.get(i);
 					min1[1] = P.get(j);
 				}
 			}
 		}
-		
-		return min1;	
+
+		return min1;
 	}
+
 	// finds a minimum spanning tree using kruskal greedy algorithm
 	// and returns the path to achieve that. Use Edge._nEdgeCost
 	// attribute in finding the min span tree [30 pts]

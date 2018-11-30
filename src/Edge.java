@@ -41,4 +41,9 @@ public class Edge {
 	public int getCost() {
 		return _nEdgeCost;
 	}
+	
+	@Override
+	public String toString() {
+		return this._strUniqueID.toString();
+	}
 }

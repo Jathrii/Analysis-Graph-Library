@@ -6,7 +6,6 @@ public class Vertex {
 	// map. Assume 0,0 is
 	// bottom left.
 
-	
 	public Vertex(StringBuffer strUniqueID, StringBuffer _strData, int _nX, int _nY) {
 		// TODO Auto-generated constructor stub
 		this._strUniqueID = strUniqueID;
@@ -29,5 +28,10 @@ public class Vertex {
 
 	public int getY() {
 		return _nY;
+	}
+
+	@Override
+	public String toString() {
+		return this._strUniqueID.toString();
 	}
 }
