@@ -27,19 +27,18 @@ public class Grading {
 		GradingVisitor gVisitor = new GradingVisitor();
 
 		// Graph 1
-//		g.insertVertex("1", "1", 0, 0);
-//		g.insertVertex("2", "2", 0, 0);
-//		g.insertVertex("3", "3", 0, 0);
-//		g.insertVertex("4", "4", 0, 0);
-//		g.insertVertex("5", "5", 0, 0);
-//		g.insertVertex("6", "6", 0, 0);
-//		g.insertEdge("1", "4", "88", "88", 5);
-//		g.insertEdge("1", "2", "2", "2", 2);
-//		g.insertEdge("2", "3", "14", "14", 14);
-//		g.insertEdge("2", "4", "99", "99", 5);
-//		g.insertEdge("2", "5", "4", "4", 4);
-//		g.insertEdge("4", "5", "58", "58", 58);
-//		g.insertEdge("3", "5", "34", "34", 34);
+//		 g.insertVertex("1", "1", 0, 0);
+//		 g.insertVertex("2", "2", 0, 0);
+//		 g.insertVertex("3", "3", 0, 0);
+//		 g.insertVertex("4", "4", 0, 0);
+//		 g.insertVertex("5", "5", 0, 0);
+//		 g.insertEdge("1", "4", "88", "88", 5);
+//		 g.insertEdge("1", "2", "2", "2", 2);
+//		 g.insertEdge("2", "3", "14", "14", 14);
+//		 g.insertEdge("2", "4", "99", "99", 5);
+//		 g.insertEdge("2", "5", "4", "4", 4);
+//		 g.insertEdge("4", "5", "58", "58", 58);
+//		 g.insertEdge("3", "5", "34", "34", 34);
 
 		// Graph 6
 		g.insertVertex("D", "D", 2, 5);
@@ -79,60 +78,66 @@ public class Grading {
 
 		System.out.println(
 				"ClosestPair = { " + ClosestPair[0].getUniqueID() + " , " + ClosestPair[1].getUniqueID() + " }");
-		
+
 		printDistances(g.vertices());
+
+		System.out.println();
+
+		// MST
+		System.out.println("MST");
+		g.minSpanningTree();
 		
 		System.out.println();
-		
+
 		System.out.println(g.getLibraryName());
 		System.out.println(g.getLibraryVersion());
 		System.out.println();
-		
+
 		g.removeVertex("D");
 		g.removeEdge("11");
-		
+
 		System.out.println("vertices");
-		
-		for (Vertex vertex: g.vertices()) {
+
+		for (Vertex vertex : g.vertices()) {
 			System.out.println(vertex);
 		}
-		
+
 		System.out.println();
-		
+
 		System.out.println("edges");
-		
-		for (Edge edge: g.edges()) {
+
+		for (Edge edge : g.edges()) {
 			System.out.println(edge);
 		}
-		
+
 		System.out.println();
-		
+
 		System.out.println("incident");
-		
-		for (Vertex vertex: g.vertices()) {
+
+		for (Vertex vertex : g.vertices()) {
 			System.out.println("Incident Edges for Vertex " + vertex.toString() + ":");
-			for (Edge edge: g.incidentEdges(vertex.getUniqueID().toString())) {
+			for (Edge edge : g.incidentEdges(vertex.getUniqueID().toString())) {
 				System.out.println(edge);
 				System.out.println();
 			}
 		}
-		
+
 		System.out.println();
-		
+
 		System.out.println("end");
-		
-		for (Edge edge: g.edges()) {
+
+		for (Edge edge : g.edges()) {
 			System.out.println("End Vertices of Edge " + edge.toString() + ":");
 			System.out.println(g.endVertices(edge.getUniqueID().toString())[0]);
 			System.out.println(g.endVertices(edge.getUniqueID().toString())[1]);
 			System.out.println();
 		}
-		
+
 		System.out.println();
-		
+
 		System.out.println("opposite");
-		
-		for (Edge edge: g.edges()) {
+
+		for (Edge edge : g.edges()) {
 			System.out.println("Opposite Vertices of Edge " + edge.toString() + ":");
 			System.out.println(g.opposite(edge.get_vertex1ID().toString(), edge.getUniqueID().toString()));
 			System.out.println(g.opposite(edge.get_vertex2ID().toString(), edge.getUniqueID().toString()));
@@ -161,10 +166,10 @@ public class Grading {
 				}
 				System.out.println(pair);
 				System.out.println(distance);
-				
+
 			}
 		}
-		
+
 		System.out.println("Closest Pair:");
 		System.out.println(closest);
 		System.out.println(min);

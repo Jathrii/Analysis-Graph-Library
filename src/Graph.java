@@ -1,3 +1,4 @@
+
 /*
 import java.util.Collections;
 import java.util.Comparator;
@@ -278,12 +279,6 @@ public class Graph {
 		dfsHelper(strStartVertexUniqueID, visitor, visited);
 	}
 
-	/*
-	 * public Vector<Edge> sortVectorOfEdges(Vector<Edge> vector) {
-	 * Collections.sort(vector, Comparator.comparing(Edge::getCost)); return vector;
-	 * }
-	 */
-
 	public void dfsHelper(String strStartVertexUniqueID, Visitor visitor, Hashtable<String, Boolean> visited)
 			throws GraphException {
 		if (visited.get(strStartVertexUniqueID))
@@ -484,12 +479,67 @@ public class Graph {
 		return min1;
 	}
 
+	// detects cycles in a sub-graph using dfs
+	public boolean detectCycle(String vertex, String parent, Hashtable<String, Boolean> visited,
+			Hashtable<String, Boolean> includedEdges) throws GraphException {
+
+		visited.put(vertex, true);
+
+		Vector<Edge> incidentEdges = incidentEdges(vertex);
+
+		for (Edge incidentEdge : incidentEdges) {
+			if (!includedEdges.get(incidentEdge.getUniqueID().toString()))
+				continue;
+
+			String oppositeVertex = opposite(vertex, incidentEdge.getUniqueID().toString()).getUniqueID().toString();
+
+			if (visited.get(oppositeVertex)) {
+				if (!oppositeVertex.equals(parent))
+					return true;
+			} else if (detectCycle(oppositeVertex, vertex, visited, includedEdges))
+				return true;
+		}
+
+		return false;
+	}
+
+	// sorts a given vector of edges
+	public Vector<Edge> sortVectorOfEdges(Vector<Edge> vector) {
+		Collections.sort(vector, Comparator.comparing(Edge::getCost));
+		return vector;
+	}
+
 	// finds a minimum spanning tree using kruskal greedy algorithm
 	// and returns the path to achieve that. Use Edge._nEdgeCost
 	// attribute in finding the min span tree [30 pts]
 	public Vector<PathSegment> minSpanningTree() throws GraphException {
-		return null;
+		Vector<Edge> sortedEdges = sortVectorOfEdges(edges());
+		Hashtable<String, Boolean> includedEdges = new Hashtable<String, Boolean>();
+		Vector<PathSegment> mst = new Vector<PathSegment>();
 
+		// initialize hash table with false for all edges
+		for (Edge edge : sortedEdges)
+			includedEdges.put(edge.getUniqueID().toString(), false);
+
+		for (Edge edge : sortedEdges) {
+			includedEdges.put(edge.getUniqueID().toString(), true);
+
+			String theChosenVertex = edge.get_vertex1ID().toString();
+			Hashtable<String, Boolean> visited = new Hashtable<String, Boolean>();
+
+			for (Vertex vertex : vertices())
+				visited.put(vertex.getUniqueID().toString(), false);
+
+			if (detectCycle(theChosenVertex, theChosenVertex, visited, includedEdges))
+				includedEdges.put(edge.getUniqueID().toString(), false);
+			else {
+				System.out.println(edge.getUniqueID() + ", " + edge._nEdgeCost);
+				System.out.println(edge.get_vertex1ID() + " --> " + edge.get_vertex2ID());
+				mst.add(new PathSegment(vertices.get(theChosenVertex), edge));
+			}
+		}
+
+		return mst;
 	}
 
 	// finds shortest paths using bellman ford dynamic programming
