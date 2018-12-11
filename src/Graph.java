@@ -455,6 +455,12 @@ public class Graph {
 			return s1.getX() - s2.getX();
 		}
 	};
+	
+	Comparator<Vertex> OrderByID = new Comparator<Vertex>() {
+		public int compare(Vertex s1, Vertex s2) {
+			return (s1.getUniqueID().toString()).compareTo(s2.getUniqueID().toString());
+		}
+	};
 
 	Vertex[] closestPairHelper1(Vector<Vertex> P, Vertex[] min) {
 		P.sort(OrderByY);
@@ -556,8 +562,138 @@ public class Graph {
 	// Edge._nEdgeCost attribute in finding the shortest path
 	// [35 pts]
 	public Vector<Vector<PathSegment>> findAllShortestPathsFW() throws GraphException {
-		return null;
+		Vector<Vertex> sortedvertices = this.vertices();
+        Vector<Vector<PathSegment>> res = new Vector<Vector<PathSegment>>();
+		Collections.sort(sortedvertices, OrderByID);
+		int N = sortedvertices.size();
+		Vector<String> VertexID= new Vector<String>();
+		for(int i = 0; i < N; i++)
+		{
+			VertexID.insertElementAt(sortedvertices.get(i).toString(),i);
+		}
+		Vector<Edge> Edges = this.edges();
+        int[][] cost = new int [N][N];
+        int [][] path = new int [N][N];
+        for(int i =0; i < N;i++)
+        {
+        	Vertex tmpVertex = sortedvertices.get(i);
+        	for(int j = 0; j < Edges.size(); j++)
+        	{
+        		Edge tmpEdge = Edges.get(j);
+        		if(tmpEdge.get_vertex1ID().toString().equals(tmpVertex.getUniqueID().toString()))
+        		{
+        			int tmp = VertexID.indexOf(tmpEdge.get_vertex2ID().toString());
+        			cost[i][tmp] = tmpEdge.getCost();
+        			//cost[tmp][i] = tmpEdge.getCost();
+        		}
+        	}
+        }
+       
+        for(int x = 0; x < N; x++)
+        {
+        	for(int y = 0; y < N; y++)
+        	{
+        		if(cost[x][y] == 0 && x != y)
+        		{
+        			cost[x][y] = Integer.MAX_VALUE;
+        		}
+        	}
+        }
+        
+        for (int v = 0; v < N; v++)
+        {
+            for (int u = 0; u < N; u++)
+            {
+                if (v == u)
+                    path[v][u] = 0 ;
+                else if (cost[v][u] != Integer.MAX_VALUE)
+                    path[v][u] = v;
+                else
+                    path[v][u] = -1;
+            }
+        }
+        
+        for (int k = 0; k < N; k++)
+        {
+            for (int v = 0; v < N; v++)
+            {
+                for (int u = 0; u < N; u++)
+                {
+                   
+                    if (cost[v][k] != Integer.MAX_VALUE
+                            && cost[k][u] != Integer.MAX_VALUE
+                            && (cost[v][k] + cost[k][u] < cost[v][u]))
+                    {
+                    	
+                    	cost[v][u] = cost[v][k] + cost[k][u];
+                        path[v][u] = path[k][u];
+                       
+                    }
+                }
+
+                if (cost[v][v] < 0)
+                {
+                    System.out.println("Negative Weight Cycle Found!!");
+                    return null;
+                }
+            }
+        }
+        Vector<Vector<Vertex>> tmpPaths = getSolution(cost, path, N, sortedvertices);
+        
+    for(int i = 0; i < tmpPaths.size(); i++)
+    {
+    	Vector<PathSegment> Path = new Vector<PathSegment>();
+    	for(int j = 0; j < tmpPaths.get(i).size() - 1; j++)
+    	{
+    		PathSegment PS = null;
+    		for(int k = 0; k < Edges.size(); k++)
+    		{
+    			if(Edges.get(k).get_vertex1ID().toString().equals(tmpPaths.get(i).get(j).getUniqueID().toString())
+    					&& Edges.get(k).get_vertex2ID().toString().equals(tmpPaths.get(i).get(j + 1).getUniqueID().toString())) 
+    			{
+    				PS = new PathSegment(tmpPaths.get(i).get(j),Edges.get(k));
+    			}
+    		}
+    		Path.insertElementAt(PS, j);
+    	}
+		res.insertElementAt(Path, i);
+    }	
+  
+    
+		return res;
 
 	}
+	
+	 private static void followPath(int[][] path, int v, int u, Vector<Vertex> vertices, Vector<Vertex> tmpPath)
+	    {
+	        if (path[v][u] == v)
+	            return;
+	        followPath(path, v, path[v][u], vertices, tmpPath);
+	        //System.out.print(vertices.get(path[v][u]).getUniqueID().toString() + " ");
+	        tmpPath.add(vertices.get(path[v][u]));
+	    }
+
+	 private static Vector<Vector<Vertex>> getSolution(int[][] cost, int[][] path, int N, Vector<Vertex> vertices)
+	 {
+	    	 Vector<Vector<Vertex>> tmpPaths = new Vector<Vector<Vertex>>();
+	        for (int v = 0; v < N; v++)
+	        {
+	            for (int u = 0; u < N; u++)
+	            {
+	                if (u != v && path[v][u] != -1)
+	                {
+	    	        	Vector<Vertex> tmpPath = new Vector<Vertex>();
+	    	        	tmpPath.add(vertices.get(v));
+	                    //System.out.print("Shortest Path from vertex " + vertices.get(v).getUniqueID().toString() +
+	                    //        " to vertex " + vertices.get(u).getUniqueID().toString() + " is (" + vertices.get(v).getUniqueID().toString() + " ");
+	                    followPath(path, v, u, vertices, tmpPath);
+	                    //System.out.println(vertices.get(u).getUniqueID().toString() + ")");
+	    	        	tmpPath.add(vertices.get(u));
+	                    tmpPaths.add(tmpPath);
+	                }
+	            }
+	        }
+	        return tmpPaths;
+	    }
 
 }
