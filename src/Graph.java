@@ -668,6 +668,15 @@ public class Graph {
 			if (dist[uIndex] != Integer.MAX_VALUE && dist[uIndex] + weight < dist[vIndex]) {
 				System.out.println("Graph contains negative weight cycle");
 				return null;
+			} else {
+				v = edgeCurrent.get_vertex1ID().toString();
+				u = edgeCurrent.get_vertex2ID().toString();
+				uIndex = VertexID.indexOf(u);
+				vIndex = VertexID.indexOf(v);
+				if (dist[uIndex] != Integer.MAX_VALUE && dist[uIndex] + weight < dist[vIndex]) {
+					System.out.println("Graph contains negative weight cycle");
+					return null;
+				}
 			}
 		}
 		ArrayList<ArrayList<Tuple>> pathsToSourceVertexMultipleTuples = new ArrayList<ArrayList<Tuple>>();
