@@ -163,7 +163,7 @@ public class Grading {
 			System.out.println(")");
 		}
 		System.out.println("==================");
-		ShortestPaths = g.findShortestPathBF("A");
+		ShortestPaths = g.findShortestPathBF("B");
 		;
 		for (Vector<PathSegment> path : ShortestPaths) {
 			System.out.print("Shortest Path from vertex " + path.get(0).getVertex() + " to vertex "
