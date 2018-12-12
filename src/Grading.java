@@ -32,6 +32,7 @@ public class Grading {
 		 g2.insertVertex("3", "3", 0, 0);
 		 g2.insertVertex("4", "4", 0, 0);
 		 g2.insertVertex("5", "5", 0, 0);
+		 //g2.insertEdge("1", "5", "98", "98", 7);
 		 g2.insertEdge("1", "4", "88", "88", 5);
 		 g2.insertEdge("1", "2", "2", "2", 2);
 		 g2.insertEdge("2", "3", "14", "14", 14);
@@ -156,7 +157,19 @@ public class Grading {
 			}
 			System.out.println(Path.get((Path.size() - 1)).getEdge().get_vertex2ID() + ")");
 		}
-		
+		System.out.println("==================");
+		ShortestPaths =  g.findShortestPathBF("C");;
+		for(Vector<PathSegment> Path : ShortestPaths)
+		{
+			System.out.print("Shortest Path from vertex " + Path.get(0).getEdge().get_vertex1ID() + " to vertex "+
+							Path.get((Path.size() - 1)).getEdge().get_vertex2ID() +" is (");
+			for(PathSegment segment : Path)
+			{
+				System.out.print(segment.getVertex() + ", ");
+			}
+			System.out.println(Path.get((Path.size() - 1)).getEdge().get_vertex2ID() + ")");
+		}
+		System.out.println("==================");
 		/*
 		 * if (gVisitor.getResult().equalsIgnoreCase("blah")) nMark += 12;
 		 */

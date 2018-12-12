@@ -3,13 +3,38 @@
 import java.util.Collections;
 import java.util.Comparator;
 */
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
 import java.lang.Math;
+
+class Tuple {
+	int x;
+	int y;
+
+	public Tuple(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public String toString() {
+		return "x : " + x + ", y : " + y + "\n";
+	}
+}
 
 public class Graph {
 	// LinkedList<Vertex> vertices = new LinkedList<Vertex>();
@@ -255,10 +280,10 @@ public class Graph {
 	}
 
 	/*
-	 * // returns the edge connecting 2 vertices public Edge connectingEdge(Vertex
-	 * startVertex, Vertex endVertex) { String startVertexID =
-	 * startVertex.getUniqueID().toString(); String endVertexID =
-	 * endVertex.getUniqueID().toString();
+	 * // returns the edge connecting 2 vertices public Edge
+	 * connectingEdge(Vertex startVertex, Vertex endVertex) { String
+	 * startVertexID = startVertex.getUniqueID().toString(); String endVertexID
+	 * = endVertex.getUniqueID().toString();
 	 * 
 	 * for (Edge edge : edgeList) { if
 	 * ((edge.get_vertex1ID().toString().equals(startVertexID) &&
@@ -370,7 +395,8 @@ public class Graph {
 		pathVectorResult = pathDFSHelper(strStartVertexUniqueID, strEndVertexUniqueID, pathVectorTemp, pathVectorResult,
 				visited);
 		/*
-		 * //for testing purposes for (PathSegment pathSegment : pathVectorResult) {
+		 * //for testing purposes for (PathSegment pathSegment :
+		 * pathVectorResult) {
 		 * System.out.println("Vertex : "+pathSegment.getVertex().getUniqueID()
 		 * +", Edge Cost : "+pathSegment.getEdge().getCost()); }
 		 */
@@ -455,7 +481,7 @@ public class Graph {
 			return s1.getX() - s2.getX();
 		}
 	};
-	
+
 	Comparator<Vertex> OrderByID = new Comparator<Vertex>() {
 		public int compare(Vertex s1, Vertex s2) {
 			return (s1.getUniqueID().toString()).compareTo(s2.getUniqueID().toString());
@@ -468,7 +494,8 @@ public class Graph {
 		Vertex[] min1 = new Vertex[2];
 		min1[0] = min[0];
 		min1[1] = min[1];
-		// Pick all points one by one and try the next points till the difference
+		// Pick all points one by one and try the next points till the
+		// difference
 		// between y coordinates is smaller than d.
 		// This loop is proven to run at most 6 times
 
@@ -553,8 +580,167 @@ public class Graph {
 	// vertex. Use Edge._nEdgeCost attribute in finding the
 	// shortest path [35 pts]
 	public Vector<Vector<PathSegment>> findShortestPathBF(String strStartVertexUniqueID) throws GraphException {
-		return null;
+		Vector<Vertex> sortedVertices = this.vertices();
+		Vector<Vector<PathSegment>> res = new Vector<Vector<PathSegment>>();
+		Collections.sort(sortedVertices, OrderByID);
+		int N = sortedVertices.size();
+		Vector<String> VertexID = new Vector<String>();
+		int startVertexIndex = -1;
+		for (int i = 0; i < N; i++) {
+			if (sortedVertices.get(i).toString().equals(strStartVertexUniqueID)) {
+				startVertexIndex = i;
+			}
+			VertexID.insertElementAt(sortedVertices.get(i).toString(), i);
+		}
+		Vector<Edge> edges = this.edges();
+		int[] dist = new int[N];
+		for (int i = 0; i < N; i++) {
+			if (i != startVertexIndex) {
+				dist[i] = Integer.MAX_VALUE;
+			}
+		}
+		
+		Edge[][] adjMatrix = new Edge[N][N];
+		for (int i = 0; i < N; i++) {
+			Vertex tmpVertex = sortedVertices.get(i);
+			for (int j = 0; j < edges.size(); j++) {
+				Edge tmpEdge = edges.get(j);
+				if (tmpEdge.get_vertex1ID().toString().equals(tmpVertex.getUniqueID().toString())) {
+					int tmp = VertexID.indexOf(tmpEdge.get_vertex2ID().toString());
+					adjMatrix[i][tmp] = tmpEdge;
+				}
+			}
+		}
+		
+		ArrayList<Tuple> vertexTuple = new ArrayList<Tuple>();
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < edges.size(); j++) {
+				Edge edgeCurrent = edges.get(j);
+				String u = edgeCurrent.get_vertex1ID().toString();
+				String v = edgeCurrent.get_vertex2ID().toString();
+				int weight = edgeCurrent.getCost();
+				int uIndex = VertexID.indexOf(u);
+				int vIndex = VertexID.indexOf(v);
+				if (dist[uIndex] != Integer.MAX_VALUE && dist[uIndex] + weight < dist[vIndex]) {
+					dist[vIndex] = dist[uIndex] + weight;
+					vertexTuple.add(new Tuple(uIndex, vIndex));
+				}
+			}
+		}
+		for (int i = 0; i < N; i++) {
+			boolean occurred = false;
+			for (int j = 0; j < vertexTuple.size(); j++) {
+				Tuple tmpTuple = vertexTuple.get(vertexTuple.size() - 1 - j);
+				if (occurred && tmpTuple.y == i) {
+					vertexTuple.remove(tmpTuple);
+				} else {
+					if ((!occurred) && tmpTuple.y == i) {
+						occurred = true;
+					}
+				}
+			}
+		}
+		for (int j = 0; j < edges.size(); ++j) {
+			Edge edgeCurrent = edges.get(j);
+			String u = edgeCurrent.get_vertex1ID().toString();
+			String v = edgeCurrent.get_vertex2ID().toString();
+			int weight = edgeCurrent.getCost();
+			int uIndex = VertexID.indexOf(u);
+			int vIndex = VertexID.indexOf(v);
+			if (dist[uIndex] != Integer.MAX_VALUE && dist[uIndex] + weight < dist[vIndex]) {
+				System.out.println("Graph contains negative weight cycle");
+				return null;
+			}
+		}
+		ArrayList<ArrayList<Tuple>> pathsToSourceVertexMultipleTuples = new ArrayList<ArrayList<Tuple>>();
+		ArrayList<Tuple> pathsToSourceVertexSingleTuples = new ArrayList<Tuple>();
+		for (int i = 0; i < vertexTuple.size(); i++) {
+			Tuple currentTuple = vertexTuple.get(i);
+			if (currentTuple.getX() == startVertexIndex) {
+				pathsToSourceVertexSingleTuples.add(currentTuple);
+			} else {
+				ArrayList<Tuple> currentPath = new ArrayList<Tuple>();
+				Tuple adjTuple = vertexTuple.get(0);
+				findAdj(currentTuple, adjTuple, startVertexIndex, 0, vertexTuple, currentPath);
+				currentPath.add(currentTuple);
+				while(currentPath.get(0).getX()!=startVertexIndex){
+					currentTuple=currentPath.get(0);
+					adjTuple = vertexTuple.get(0);
+					ArrayList<Tuple> tmpPath =new ArrayList<Tuple>();
+					findAdj(currentTuple, adjTuple, startVertexIndex, 0, vertexTuple, tmpPath);
+					//tmpPath.remove(currentPath.size()-1);
+					while(!currentPath.isEmpty()){
+						tmpPath.add(currentPath.remove(0));
+					}
+					while(!tmpPath.isEmpty()){
+						currentPath.add(tmpPath.remove(0));
+					}
+				}
+				pathsToSourceVertexMultipleTuples.add(currentPath);
+			}
+		}
+		
+		Vector<Vector<Vertex>> allPathToSourceVertexVertciesVector = new Vector<Vector<Vertex>>();
+		ArrayList<Edge> edgesList=new ArrayList<Edge>();
+		for (int i = 0; i < pathsToSourceVertexSingleTuples.size(); i++) {
+			Vector<Vertex> singleCurrentPathVertciesToSourceVertex = new Vector<Vertex>();
+			Tuple currentTuple = pathsToSourceVertexSingleTuples.get(i);
+			singleCurrentPathVertciesToSourceVertex.add(sortedVertices.get(currentTuple.getX()));
+			singleCurrentPathVertciesToSourceVertex.add(sortedVertices.get(currentTuple.getY()));
+			edgesList.add(adjMatrix[currentTuple.getX()][currentTuple.getY()]);
+			allPathToSourceVertexVertciesVector.add(singleCurrentPathVertciesToSourceVertex);
+		}
+				
+		for (int i = 0; i < pathsToSourceVertexMultipleTuples.size(); i++) {
+			Vector<Vertex> singleCurrentPathVertciesToSourceVertex = new Vector<Vertex>();
+			ArrayList<Tuple> currentArray = pathsToSourceVertexMultipleTuples.get(i);
+			for(int j=0;j<currentArray.size();j++){
+				Tuple currentTuple = currentArray.get(j);
+				if(j==0){
+					singleCurrentPathVertciesToSourceVertex.add(sortedVertices.get(currentTuple.getX()));
+				}
+				singleCurrentPathVertciesToSourceVertex.add(sortedVertices.get(currentTuple.getY()));
+				edgesList.add(adjMatrix[currentTuple.getX()][currentTuple.getY()]);
+			}
+			allPathToSourceVertexVertciesVector.add(singleCurrentPathVertciesToSourceVertex);
+		}
+//		for(Vector<Vertex> vecSeg:allPathToSourceVertexVertciesVector){
+//			for(Vertex vec:vecSeg){
+//				System.out.print(vec.getUniqueID().toString()+"==>");
+//			}
+//			System.out.println();
+//		}
+		
+		Vector<Vector<PathSegment>> pathSegments=new Vector<Vector<PathSegment>>();
+		int edgeIndex=0;
+		for(Vector<Vertex> vecSeg:allPathToSourceVertexVertciesVector){
+			Vector<PathSegment> pathSegmentsSegment=new Vector<PathSegment>();
+			for(int i=0;i<vecSeg.size()-1;i++){
+				PathSegment pathSegment=new PathSegment(vecSeg.get(i), edgesList.get(edgeIndex));
+				edgeIndex++;
+				pathSegmentsSegment.add(pathSegment);
+			}
+			pathSegments.add(pathSegmentsSegment);
+		}
+		
+		return pathSegments;
+	}
 
+	ArrayList<Tuple> findAdj(Tuple tuple1, Tuple tuple2, int sourceVertex, int index, ArrayList<Tuple> tupleArray,
+			ArrayList<Tuple> result) {
+		if (index == tupleArray.size()) {
+			return result;
+		}
+		if (tuple2.getY() == tuple1.getX() && tuple2.getX() == sourceVertex) {
+			result.add(tuple2);
+			return result;
+		}
+		if (tuple2.getY() == tuple1.getX()) {
+			result.add(tuple2);
+			return findAdj(tuple2, tupleArray.get(index++), sourceVertex, index, tupleArray, result);
+		} else {
+			return findAdj(tuple1, tupleArray.get(index++), sourceVertex, index, tupleArray, result);
+		}
 	}
 
 	// finds all shortest paths using Floyd�Warshall dynamic
@@ -563,137 +749,118 @@ public class Graph {
 	// [35 pts]
 	public Vector<Vector<PathSegment>> findAllShortestPathsFW() throws GraphException {
 		Vector<Vertex> sortedvertices = this.vertices();
-        Vector<Vector<PathSegment>> res = new Vector<Vector<PathSegment>>();
+		Vector<Vector<PathSegment>> res = new Vector<Vector<PathSegment>>();
 		Collections.sort(sortedvertices, OrderByID);
 		int N = sortedvertices.size();
-		Vector<String> VertexID= new Vector<String>();
-		for(int i = 0; i < N; i++)
-		{
-			VertexID.insertElementAt(sortedvertices.get(i).toString(),i);
+		Vector<String> VertexID = new Vector<String>();
+		for (int i = 0; i < N; i++) {
+			VertexID.insertElementAt(sortedvertices.get(i).toString(), i);
 		}
 		Vector<Edge> Edges = this.edges();
-        int[][] cost = new int [N][N];
-        int [][] path = new int [N][N];
-        for(int i =0; i < N;i++)
-        {
-        	Vertex tmpVertex = sortedvertices.get(i);
-        	for(int j = 0; j < Edges.size(); j++)
-        	{
-        		Edge tmpEdge = Edges.get(j);
-        		if(tmpEdge.get_vertex1ID().toString().equals(tmpVertex.getUniqueID().toString()))
-        		{
-        			int tmp = VertexID.indexOf(tmpEdge.get_vertex2ID().toString());
-        			cost[i][tmp] = tmpEdge.getCost();
-        			//cost[tmp][i] = tmpEdge.getCost();
-        		}
-        	}
-        }
-       
-        for(int x = 0; x < N; x++)
-        {
-        	for(int y = 0; y < N; y++)
-        	{
-        		if(cost[x][y] == 0 && x != y)
-        		{
-        			cost[x][y] = Integer.MAX_VALUE;
-        		}
-        	}
-        }
-        
-        for (int v = 0; v < N; v++)
-        {
-            for (int u = 0; u < N; u++)
-            {
-                if (v == u)
-                    path[v][u] = 0 ;
-                else if (cost[v][u] != Integer.MAX_VALUE)
-                    path[v][u] = v;
-                else
-                    path[v][u] = -1;
-            }
-        }
-        
-        for (int k = 0; k < N; k++)
-        {
-            for (int v = 0; v < N; v++)
-            {
-                for (int u = 0; u < N; u++)
-                {
-                   
-                    if (cost[v][k] != Integer.MAX_VALUE
-                            && cost[k][u] != Integer.MAX_VALUE
-                            && (cost[v][k] + cost[k][u] < cost[v][u]))
-                    {
-                    	
-                    	cost[v][u] = cost[v][k] + cost[k][u];
-                        path[v][u] = path[k][u];
-                       
-                    }
-                }
+		int[][] cost = new int[N][N];
+		int[][] path = new int[N][N];
+		for (int i = 0; i < N; i++) {
+			Vertex tmpVertex = sortedvertices.get(i);
+			for (int j = 0; j < Edges.size(); j++) {
+				Edge tmpEdge = Edges.get(j);
+				if (tmpEdge.get_vertex1ID().toString().equals(tmpVertex.getUniqueID().toString())) {
+					int tmp = VertexID.indexOf(tmpEdge.get_vertex2ID().toString());
+					cost[i][tmp] = tmpEdge.getCost();
+					// cost[tmp][i] = tmpEdge.getCost();
+				}
+			}
+		}
 
-                if (cost[v][v] < 0)
-                {
-                    System.out.println("Negative Weight Cycle Found!!");
-                    return null;
-                }
-            }
-        }
-        Vector<Vector<Vertex>> tmpPaths = getSolution(cost, path, N, sortedvertices);
-        
-    for(int i = 0; i < tmpPaths.size(); i++)
-    {
-    	Vector<PathSegment> Path = new Vector<PathSegment>();
-    	for(int j = 0; j < tmpPaths.get(i).size() - 1; j++)
-    	{
-    		PathSegment PS = null;
-    		for(int k = 0; k < Edges.size(); k++)
-    		{
-    			if(Edges.get(k).get_vertex1ID().toString().equals(tmpPaths.get(i).get(j).getUniqueID().toString())
-    					&& Edges.get(k).get_vertex2ID().toString().equals(tmpPaths.get(i).get(j + 1).getUniqueID().toString())) 
-    			{
-    				PS = new PathSegment(tmpPaths.get(i).get(j),Edges.get(k));
-    			}
-    		}
-    		Path.insertElementAt(PS, j);
-    	}
-		res.insertElementAt(Path, i);
-    }	
-  
-    
+		for (int x = 0; x < N; x++) {
+			for (int y = 0; y < N; y++) {
+				if (cost[x][y] == 0 && x != y) {
+					cost[x][y] = Integer.MAX_VALUE;
+				}
+			}
+		}
+
+		for (int v = 0; v < N; v++) {
+			for (int u = 0; u < N; u++) {
+				if (v == u)
+					path[v][u] = 0;
+				else if (cost[v][u] != Integer.MAX_VALUE)
+					path[v][u] = v;
+				else
+					path[v][u] = -1;
+			}
+		}
+
+		for (int k = 0; k < N; k++) {
+			for (int v = 0; v < N; v++) {
+				for (int u = 0; u < N; u++) {
+
+					if (cost[v][k] != Integer.MAX_VALUE && cost[k][u] != Integer.MAX_VALUE
+							&& (cost[v][k] + cost[k][u] < cost[v][u])) {
+
+						cost[v][u] = cost[v][k] + cost[k][u];
+						path[v][u] = path[k][u];
+
+					}
+				}
+
+				if (cost[v][v] < 0) {
+					System.out.println("Negative Weight Cycle Found!!");
+					return null;
+				}
+			}
+		}
+		Vector<Vector<Vertex>> tmpPaths = getSolution(cost, path, N, sortedvertices);
+
+		for (int i = 0; i < tmpPaths.size(); i++) {
+			Vector<PathSegment> Path = new Vector<PathSegment>();
+			for (int j = 0; j < tmpPaths.get(i).size() - 1; j++) {
+				PathSegment PS = null;
+				for (int k = 0; k < Edges.size(); k++) {
+					if (Edges.get(k).get_vertex1ID().toString().equals(tmpPaths.get(i).get(j).getUniqueID().toString())
+							&& Edges.get(k).get_vertex2ID().toString()
+									.equals(tmpPaths.get(i).get(j + 1).getUniqueID().toString())) {
+						PS = new PathSegment(tmpPaths.get(i).get(j), Edges.get(k));
+					}
+				}
+				Path.insertElementAt(PS, j);
+			}
+			res.insertElementAt(Path, i);
+		}
+
 		return res;
 
 	}
-	
-	 private static void followPath(int[][] path, int v, int u, Vector<Vertex> vertices, Vector<Vertex> tmpPath)
-	    {
-	        if (path[v][u] == v)
-	            return;
-	        followPath(path, v, path[v][u], vertices, tmpPath);
-	        //System.out.print(vertices.get(path[v][u]).getUniqueID().toString() + " ");
-	        tmpPath.add(vertices.get(path[v][u]));
-	    }
 
-	 private static Vector<Vector<Vertex>> getSolution(int[][] cost, int[][] path, int N, Vector<Vertex> vertices)
-	 {
-	    	 Vector<Vector<Vertex>> tmpPaths = new Vector<Vector<Vertex>>();
-	        for (int v = 0; v < N; v++)
-	        {
-	            for (int u = 0; u < N; u++)
-	            {
-	                if (u != v && path[v][u] != -1)
-	                {
-	    	        	Vector<Vertex> tmpPath = new Vector<Vertex>();
-	    	        	tmpPath.add(vertices.get(v));
-	                    //System.out.print("Shortest Path from vertex " + vertices.get(v).getUniqueID().toString() +
-	                    //        " to vertex " + vertices.get(u).getUniqueID().toString() + " is (" + vertices.get(v).getUniqueID().toString() + " ");
-	                    followPath(path, v, u, vertices, tmpPath);
-	                    //System.out.println(vertices.get(u).getUniqueID().toString() + ")");
-	    	        	tmpPath.add(vertices.get(u));
-	                    tmpPaths.add(tmpPath);
-	                }
-	            }
-	        }
-	        return tmpPaths;
-	    }
+	private static void followPath(int[][] path, int v, int u, Vector<Vertex> vertices, Vector<Vertex> tmpPath) {
+		if (path[v][u] == v)
+			return;
+		followPath(path, v, path[v][u], vertices, tmpPath);
+		// System.out.print(vertices.get(path[v][u]).getUniqueID().toString() +
+		// " ");
+		tmpPath.add(vertices.get(path[v][u]));
+	}
+
+	private static Vector<Vector<Vertex>> getSolution(int[][] cost, int[][] path, int N, Vector<Vertex> vertices) {
+		Vector<Vector<Vertex>> tmpPaths = new Vector<Vector<Vertex>>();
+		for (int v = 0; v < N; v++) {
+			for (int u = 0; u < N; u++) {
+				if (u != v && path[v][u] != -1) {
+					Vector<Vertex> tmpPath = new Vector<Vertex>();
+					tmpPath.add(vertices.get(v));
+					// System.out.print("Shortest Path from vertex " +
+					// vertices.get(v).getUniqueID().toString() +
+					// " to vertex " + vertices.get(u).getUniqueID().toString()
+					// + " is (" + vertices.get(v).getUniqueID().toString() + "
+					// ");
+					followPath(path, v, u, vertices, tmpPath);
+					// System.out.println(vertices.get(u).getUniqueID().toString()
+					// + ")");
+					tmpPath.add(vertices.get(u));
+					tmpPaths.add(tmpPath);
+				}
+			}
+		}
+		return tmpPaths;
+	}
 
 }
