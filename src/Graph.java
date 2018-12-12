@@ -565,11 +565,8 @@ public class Graph {
 
 			if (detectCycle(theChosenVertex, theChosenVertex, visited, includedEdges))
 				includedEdges.put(edge.getUniqueID().toString(), false);
-			else {
-				System.out.println(edge.getUniqueID() + ", " + edge._nEdgeCost);
-				System.out.println(edge.get_vertex1ID() + " --> " + edge.get_vertex2ID());
-				mst.add(new PathSegment(vertices.get(theChosenVertex), edge));
-			}
+			else
+				mst.add(new PathSegment(null, edge));
 		}
 
 		return mst;
@@ -798,7 +795,7 @@ public class Graph {
 				if (tmpEdge.get_vertex1ID().toString().equals(tmpVertex.getUniqueID().toString())) {
 					int tmp = VertexID.indexOf(tmpEdge.get_vertex2ID().toString());
 					cost[i][tmp] = tmpEdge.getCost();
-					// cost[tmp][i] = tmpEdge.getCost();
+					cost[tmp][i] = tmpEdge.getCost();
 				}
 			}
 		}
@@ -816,7 +813,7 @@ public class Graph {
 				if (v == u)
 					path[v][u] = 0;
 				else if (cost[v][u] != Integer.MAX_VALUE)
-					path[v][u] = v;
+					path[v][u] = u;
 				else
 					path[v][u] = -1;
 			}
@@ -828,9 +825,8 @@ public class Graph {
 
 					if (cost[v][k] != Integer.MAX_VALUE && cost[k][u] != Integer.MAX_VALUE
 							&& (cost[v][k] + cost[k][u] < cost[v][u])) {
-
 						cost[v][u] = cost[v][k] + cost[k][u];
-						path[v][u] = path[k][u];
+						path[v][u] = path[v][k];
 
 					}
 				}
@@ -848,10 +844,20 @@ public class Graph {
 			for (int j = 0; j < tmpPaths.get(i).size() - 1; j++) {
 				PathSegment PS = null;
 				for (int k = 0; k < Edges.size(); k++) {
-					if (Edges.get(k).get_vertex1ID().toString().equals(tmpPaths.get(i).get(j).getUniqueID().toString())
-							&& Edges.get(k).get_vertex2ID().toString()
-									.equals(tmpPaths.get(i).get(j + 1).getUniqueID().toString())) {
+					String vertex1ID = Edges.get(k).get_vertex1ID().toString();
+					String vertex2ID = Edges.get(k).get_vertex2ID().toString();
+					String currentVertexID = tmpPaths.get(i).get(j).getUniqueID().toString();
+					String nextVertexID = tmpPaths.get(i).get(j + 1).getUniqueID().toString();
+					
+					boolean condA = vertex1ID.equals(currentVertexID) && vertex2ID.equals(nextVertexID);
+					boolean condB = vertex2ID.equals(currentVertexID) && vertex1ID.equals(nextVertexID);
+					if (condA || condB) {
 						PS = new PathSegment(tmpPaths.get(i).get(j), Edges.get(k));
+						break;
+					}
+					else if (condB) {
+						PS = new PathSegment(tmpPaths.get(i).get(j), Edges.get(k));
+						break;
 					}
 				}
 				Path.insertElementAt(PS, j);
@@ -860,16 +866,18 @@ public class Graph {
 		}
 
 		return res;
-
 	}
 
 	private static void followPath(int[][] path, int v, int u, Vector<Vertex> vertices, Vector<Vertex> tmpPath) {
-		if (path[v][u] == v)
+		if (path[v][u] == u)
 			return;
-		followPath(path, v, path[v][u], vertices, tmpPath);
+		
+		tmpPath.add(vertices.get(path[v][u]));
+		
+		followPath(path, path[v][u], u, vertices, tmpPath);
 		// System.out.print(vertices.get(path[v][u]).getUniqueID().toString() +
 		// " ");
-		tmpPath.add(vertices.get(path[v][u]));
+		
 	}
 
 	private static Vector<Vector<Vertex>> getSolution(int[][] cost, int[][] path, int N, Vector<Vertex> vertices) {

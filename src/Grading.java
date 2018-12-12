@@ -148,12 +148,19 @@ public class Grading {
 		Vector<Vector<PathSegment>> ShortestPaths = g2.findAllShortestPathsFW();
 
 		for (Vector<PathSegment> Path : ShortestPaths) {
-			System.out.print("Shortest Path from vertex " + Path.get(0).getEdge().get_vertex1ID() + " to vertex "
-					+ Path.get((Path.size() - 1)).getEdge().get_vertex2ID() + " is (");
+			// System.out.print("Shortest Path from vertex " +
+			// Path.get(0).getVertex().toString() + " to vertex "+
+			// Path.get((Path.size() - 1)).getEdge().get_vertex2ID() +" is (");
+			System.out.println("Shortest Path from vertex " + Path.get(0).getVertex().toString() + " to edge" + "("
+					+ Path.get((Path.size() - 1)).getEdge().get_vertex1ID() + ","
+					+ Path.get((Path.size() - 1)).getEdge().get_vertex2ID() + ")");
+
 			for (PathSegment segment : Path) {
 				System.out.print(segment.getVertex() + ", ");
 			}
-			System.out.println(Path.get((Path.size() - 1)).getEdge().get_vertex2ID() + ")");
+			// System.out.println(Path.get((Path.size() - 1)).getEdge().get_vertex2ID() +
+			// ")");
+			System.out.println(")");
 		}
 		System.out.println("==================");
 		ShortestPaths = g.findShortestPathBF("A");
@@ -161,7 +168,7 @@ public class Grading {
 		for (Vector<PathSegment> path : ShortestPaths) {
 			System.out.print("Shortest Path from vertex " + path.get(0).getVertex() + " to vertex "
 					+ path.get((path.size() - 1)).getVertex() + " is (");
-			for (int i = 0; i < path.size()-1; i++) {
+			for (int i = 0; i < path.size() - 1; i++) {
 				System.out.print(path.get(i).getVertex() + ", ");
 			}
 			System.out.println(path.get((path.size() - 1)).getVertex() + ")");
