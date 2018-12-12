@@ -844,10 +844,6 @@ public class Graph {
 						PS = new PathSegment(tmpPaths.get(i).get(j), Edges.get(k));
 						break;
 					}
-					else if (condB) {
-						PS = new PathSegment(tmpPaths.get(i).get(j), Edges.get(k));
-						break;
-					}
 				}
 				Path.insertElementAt(PS, j);
 			}
