@@ -591,13 +591,12 @@ public class Graph {
 	// shortest path [35 pts]
 	public Vector<Vector<PathSegment>> findShortestPathBF(String strStartVertexUniqueID) throws GraphException {
 		Vector<Vertex> sortedVertices = this.vertices();
-		Vector<Vector<PathSegment>> res = new Vector<Vector<PathSegment>>();
 		Collections.sort(sortedVertices, OrderByID);
 		int N = sortedVertices.size();
 		Vector<String> VertexID = new Vector<String>();
 		int startVertexIndex = -1;
 		for (int i = 0; i < N; i++) {
-			if (sortedVertices.get(i).toString().equals(strStartVertexUniqueID)) {
+			if (sortedVertices.get(i).getUniqueID().toString().equals(strStartVertexUniqueID)) {
 				startVertexIndex = i;
 			}
 			VertexID.insertElementAt(sortedVertices.get(i).toString(), i);
@@ -621,7 +620,6 @@ public class Graph {
 				}
 			}
 		}
-
 		ArrayList<Tuple> vertexTuple = new ArrayList<Tuple>();
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < edges.size(); j++) {
@@ -701,21 +699,15 @@ public class Graph {
 		}
 
 		Vector<Vector<Vertex>> allPathToSourceVertexVertciesVector = new Vector<Vector<Vertex>>();
-		ArrayList<Edge> edgesList = new ArrayList<Edge>();
 		for (int i = 0; i < pathsToSourceVertexSingleTuples.size(); i++) {
 			Vector<Vertex> singleCurrentPathVertciesToSourceVertex = new Vector<Vertex>();
 			Tuple currentTuple = pathsToSourceVertexSingleTuples.get(i);
 			singleCurrentPathVertciesToSourceVertex.add(sortedVertices.get(currentTuple.getX()));
 			singleCurrentPathVertciesToSourceVertex.add(sortedVertices.get(currentTuple.getY()));
 			edgeList.add(findEdge(sortedVertices.get(currentTuple.getX()), sortedVertices.get(currentTuple.getY())));
-			// edgesList.add(adjMatrix[currentTuple.getX()][currentTuple.getY()]);
 			allPathToSourceVertexVertciesVector.add(singleCurrentPathVertciesToSourceVertex);
 		}
 
-		for (Edge edgy : edgesList) {
-			System.out.print(edgy.getUniqueID().toString() + ",");
-		}
-		System.out.println();
 		for (int i = 0; i < pathsToSourceVertexMultipleTuples.size(); i++) {
 			Vector<Vertex> singleCurrentPathVertciesToSourceVertex = new Vector<Vertex>();
 			ArrayList<Tuple> currentArray = pathsToSourceVertexMultipleTuples.get(i);
@@ -725,36 +717,24 @@ public class Graph {
 					singleCurrentPathVertciesToSourceVertex.add(sortedVertices.get(currentTuple.getX()));
 				}
 				singleCurrentPathVertciesToSourceVertex.add(sortedVertices.get(currentTuple.getY()));
-				edgeList.add(findEdge(sortedVertices.get(currentTuple.getX()), sortedVertices.get(currentTuple.getY())));
+				edgeList.add(
+						findEdge(sortedVertices.get(currentTuple.getX()), sortedVertices.get(currentTuple.getY())));
 			}
 			allPathToSourceVertexVertciesVector.add(singleCurrentPathVertciesToSourceVertex);
 		}
-//		for (Vector<Vertex> vecSeg : allPathToSourceVertexVertciesVector) {
-//			for (Vertex vec : vecSeg) {
-//				System.out.print(vec.getUniqueID().toString() + "==>");
-//			}
-//			System.out.println();
-//		}
-		//System.out.println("+++_------___");
+
 		Vector<Vector<PathSegment>> pathSegments = new Vector<Vector<PathSegment>>();
 		int edgeIndex = 0;
-		//System.out.println(Arrays.toString(edgeList.toArray()));
 		for (Vector<Vertex> vecSeg : allPathToSourceVertexVertciesVector) {
 			Vector<PathSegment> pathSegmentsSegment = new Vector<PathSegment>();
 			for (int i = 0; i < vecSeg.size(); i++) {
-				// findEdge
-				// PathSegment pathSegment = new PathSegment(vecSeg.get(i),
-				// edgesList.get(edgeIndex));
-				//System.out.println(findEdge(vecSeg.get(i), vecSeg.get(i + 1)).getUniqueID().toString());
 				PathSegment pathSegment = new PathSegment(vecSeg.get(i), edgeList.get(edgeIndex));
-				//System.out.print(pathSegment.getVertex().getUniqueID().toString()+"==>");
 				edgeIndex++;
 				pathSegmentsSegment.add(pathSegment);
 			}
-			System.out.println();
+
 			pathSegments.add(pathSegmentsSegment);
 		}
-
 		return pathSegments;
 	}
 
