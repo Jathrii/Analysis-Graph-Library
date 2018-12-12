@@ -26,20 +26,20 @@ public class Grading {
 		Graph g = new Graph();
 		GradingVisitor gVisitor = new GradingVisitor();
 		Graph g2 = new Graph();
-		//Graph 1
-		 g2.insertVertex("1", "1", 0, 0);
-		 g2.insertVertex("2", "2", 0, 0);
-		 g2.insertVertex("3", "3", 0, 0);
-		 g2.insertVertex("4", "4", 0, 0);
-		 g2.insertVertex("5", "5", 0, 0);
-		 //g2.insertEdge("1", "5", "98", "98", 7);
-		 g2.insertEdge("1", "4", "88", "88", 5);
-		 g2.insertEdge("1", "2", "2", "2", 2);
-		 g2.insertEdge("2", "3", "14", "14", 14);
-		 g2.insertEdge("2", "4", "99", "99", 5);
-		 g2.insertEdge("2", "5", "4", "4", 4);
-		 g2.insertEdge("4", "5", "58", "58", 58);
-		 g2.insertEdge("3", "5", "34", "34", 34);
+		// Graph 1
+		g2.insertVertex("1", "1", 0, 0);
+		g2.insertVertex("2", "2", 0, 0);
+		g2.insertVertex("3", "3", 0, 0);
+		g2.insertVertex("4", "4", 0, 0);
+		g2.insertVertex("5", "5", 0, 0);
+		// g2.insertEdge("1", "5", "98", "98", 7);
+		g2.insertEdge("1", "4", "88", "88", 5);
+		g2.insertEdge("1", "2", "2", "2", 2);
+		g2.insertEdge("2", "3", "14", "14", 14);
+		g2.insertEdge("2", "4", "99", "99", 5);
+		g2.insertEdge("2", "5", "4", "4", 4);
+		g2.insertEdge("4", "5", "58", "58", 58);
+		g2.insertEdge("3", "5", "34", "34", 34);
 
 		// Graph 6
 		g.insertVertex("D", "D", 2, 5);
@@ -87,7 +87,7 @@ public class Grading {
 		// MST
 		System.out.println("MST");
 		g.minSpanningTree();
-		
+
 		System.out.println();
 
 		System.out.println(g.getLibraryName());
@@ -144,36 +144,33 @@ public class Grading {
 			System.out.println(g.opposite(edge.get_vertex2ID().toString(), edge.getUniqueID().toString()));
 			System.out.println();
 		}
-		
-		Vector<Vector<PathSegment>> ShortestPaths =  g2.findAllShortestPathsFW();
-		
-		for(Vector<PathSegment> Path : ShortestPaths)
-		{
-			System.out.print("Shortest Path from vertex " + Path.get(0).getEdge().get_vertex1ID() + " to vertex "+
-							Path.get((Path.size() - 1)).getEdge().get_vertex2ID() +" is (");
-			for(PathSegment segment : Path)
-			{
+
+		Vector<Vector<PathSegment>> ShortestPaths = g2.findAllShortestPathsFW();
+
+		for (Vector<PathSegment> Path : ShortestPaths) {
+			System.out.print("Shortest Path from vertex " + Path.get(0).getEdge().get_vertex1ID() + " to vertex "
+					+ Path.get((Path.size() - 1)).getEdge().get_vertex2ID() + " is (");
+			for (PathSegment segment : Path) {
 				System.out.print(segment.getVertex() + ", ");
 			}
 			System.out.println(Path.get((Path.size() - 1)).getEdge().get_vertex2ID() + ")");
 		}
 		System.out.println("==================");
-		ShortestPaths =  g.findShortestPathBF("C");;
-		for(Vector<PathSegment> Path : ShortestPaths)
-		{
-			System.out.print("Shortest Path from vertex " + Path.get(0).getEdge().get_vertex1ID() + " to vertex "+
-							Path.get((Path.size() - 1)).getEdge().get_vertex2ID() +" is (");
-			for(PathSegment segment : Path)
-			{
-				System.out.print(segment.getVertex() + ", ");
+		ShortestPaths = g.findShortestPathBF("A");
+		;
+		for (Vector<PathSegment> path : ShortestPaths) {
+			System.out.print("Shortest Path from vertex " + path.get(0).getVertex() + " to vertex "
+					+ path.get((path.size() - 1)).getVertex() + " is (");
+			for (int i = 0; i < path.size()-1; i++) {
+				System.out.print(path.get(i).getVertex() + ", ");
 			}
-			System.out.println(Path.get((Path.size() - 1)).getEdge().get_vertex2ID() + ")");
+			System.out.println(path.get((path.size() - 1)).getVertex() + ")");
 		}
 		System.out.println("==================");
 		/*
 		 * if (gVisitor.getResult().equalsIgnoreCase("blah")) nMark += 12;
 		 */
-		
+
 		return nMark;
 	}
 
